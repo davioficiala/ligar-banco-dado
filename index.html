@@ -1,270 +1,48 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🧠 Brain Firebase</title>
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-background:#f6f8fa;color:#1f2328;
-min-height:100vh;display:flex;flex-direction:column;
-align-items:center;padding:40px 16px
-}
-.header{display:flex;align-items:center;gap:12px;margin-bottom:28px}
-.header-icon{
-width:40px;height:40px;background:#1f2328;border-radius:50%;
-display:flex;align-items:center;justify-content:center
-}
-.card{
-width:100%;max-width:480px;background:#fff;
-border:1px solid #d0d7de;border-radius:12px;
-overflow:hidden
-}
-.card-header{
-background:#f6f8fa;padding:14px 20px;
-font-weight:600;border-bottom:1px solid #d0d7de
-}
-.card-body{
-padding:20px;display:flex;
-flex-direction:column;gap:14px
-}
-.field label{
-display:block;
-font-size:12px;
-margin-bottom:6px;
-font-weight:600
-}
-.opt{color:#656d76;font-weight:400}
-.input-wrap{position:relative}
-.icon{
-position:absolute;
-left:10px;
-top:50%;
-transform:translateY(-50%)
-}
-.input-wrap input{
-width:100%;
-padding:8px 12px 8px 32px;
-border:1px solid #d0d7de;
-border-radius:6px
-}
-.tipo-group{display:flex;gap:8px}
-.tipo-btn{
-flex:1;
-padding:8px;
-border:1px solid #d0d7de;
-background:#fff;
-border-radius:6px;
-cursor:pointer
-}
-.tipo-btn.active{
-background:#1f2328;
-color:#fff
-}
-.card-footer{
-padding:14px 20px;
-background:#f6f8fa;
-display:flex;
-justify-content:space-between
-}
-.btn-save{
-padding:8px 16px;
-background:#2da44e;
-color:#fff;
-border:none;
-border-radius:6px;
-cursor:pointer
-}
-.success-msg{
-opacity:0;
-transition:.3s
-}
-.success-msg.show{
-opacity:1
-}
-</style>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Brain Orçamento</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script type="module" src="firebase.js"></script>
+
+<script defer src="app.js"></script>
+
 </head>
 
 <body>
 
-<div class="header">
-<div class="header-icon">🧠</div>
-<div>
-<div><b>Brain Firebase</b></div>
-<small>brain-orcamento · dados</small>
-</div>
-</div>
+<h1>💰 Brain Orçamento</h1>
 
-<div class="card">
+<input id="entrada" type="number" placeholder="Entrada">
 
-<div class="card-header">
-＋ Adicionar dados
-</div>
+<input id="emergencia" type="number" placeholder="Emergência">
 
-<div class="card-body">
+<input id="investimentos" type="number" placeholder="Investimentos">
 
-<div class="field">
-<label>Título *</label>
-<div class="input-wrap">
-<span class="icon">🏷</span>
-<input id="titulo" placeholder="Produto">
-</div>
-</div>
+<input id="gastos" type="number" placeholder="Gastos">
 
-<div class="field">
-<label>Valor <span class="opt">(opcional)</span></label>
-<div class="input-wrap">
-<span class="icon">💰</span>
-<input id="valor" type="number">
-</div>
-</div>
+<br><br>
 
-<div class="field">
-<label>Link <span class="opt">(opcional)</span></label>
-<div class="input-wrap">
-<span class="icon">🔗</span>
-<input id="link" type="url">
-</div>
-</div>
-
-<div class="field">
-<label>Link imagem <span class="opt">(opcional)</span></label>
-<div class="input-wrap">
-<span class="icon">🖼</span>
-<input id="linkImagem" type="url">
-</div>
-</div>
-
-<div class="field">
-<label>Descrição</label>
-<div class="input-wrap">
-<span class="icon">📝</span>
-<input id="descricao">
-</div>
-</div>
-
-<div class="field">
-<label>Marca</label>
-<div class="input-wrap">
-<span class="icon">🏭</span>
-<input id="marca">
-</div>
-</div>
-
-<div class="field">
-<label>Tipo</label>
-
-<div class="tipo-group">
-<button class="tipo-btn active" data-tipo="entrada" onclick="selecionarTipo(this)">Entrada</button>
-
-<button class="tipo-btn" data-tipo="saida" onclick="selecionarTipo(this)">Saída</button>
-
-<button class="tipo-btn" data-tipo="estudo" onclick="selecionarTipo(this)">Estudo</button>
-</div>
-
-</div>
-
-</div>
-
-<div class="card-footer">
-<div id="sucesso" class="success-msg">
-✅ Salvo
-</div>
-
-<button class="btn-save" onclick="salvar()">
-Salvar
+<button onclick="calcular()">
+Calcular
 </button>
-</div>
 
-</div>
+<button onclick="salvarFinanceiro()">
+Salvar no Firebase
+</button>
 
-<script type="module">
+<hr>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+<h2>Histórico</h2>
 
-import {
-getFirestore,
-collection,
-addDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const app=initializeApp({
-apiKey:"AIzaSyAE2VcJyqu01rtqlgVoMg634FFfTGxiRgc",
-authDomain:"brain-orcamento.firebaseapp.com",
-projectId:"brain-orcamento",
-storageBucket:"brain-orcamento.firebasestorage.app",
-messagingSenderId:"991853359315",
-appId:"1:991853359315:web:b2270aab447a853b212426"
-});
-
-const db=getFirestore(app);
-
-let tipoAtual="entrada";
-
-window.selecionarTipo=(btn)=>{
-document.querySelectorAll(".tipo-btn")
-.forEach(b=>b.classList.remove("active"));
-
-btn.classList.add("active");
-
-tipoAtual=btn.dataset.tipo;
-};
-
-window.salvar=async()=>{
-
-const titulo=document.getElementById("titulo").value.trim();
-
-if(!titulo){
-alert("Digite título");
-return;
-}
-
-const valor=document.getElementById("valor").value;
-
-const link=document.getElementById("link").value.trim();
-
-const linkImagem=document.getElementById("linkImagem").value.trim();
-
-const descricao=document.getElementById("descricao").value.trim();
-
-const marca=document.getElementById("marca").value.trim();
-
-try{
-
-await addDoc(collection(db,"dados"),{
-
-titulo,
-valor:valor?Number(valor):0,
-link,
-linkImagem,
-descricao,
-marca,
-tipo:tipoAtual,
-criadoEm:new Date().toISOString()
-
-});
-
-document.querySelectorAll("input")
-.forEach(i=>i.value="");
-
-document.getElementById("sucesso")
-.classList.add("show");
-
-setTimeout(()=>{
-document.getElementById("sucesso")
-.classList.remove("show");
-},3000);
-
-}catch(e){
-alert(e.message);
-}
-
-};
-
-</script>
+<div id="lista"></div>
 
 </body>
 </html>
